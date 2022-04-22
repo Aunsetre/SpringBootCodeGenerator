@@ -1,5 +1,6 @@
 <#if isAutoImport?exists && isAutoImport==true>
 import java.util.Map;
+import com.alibaba.fastjson.JSONObject;
 </#if>
 /**
  * @description ${classInfo.classComment}
@@ -11,26 +12,21 @@ public interface ${classInfo.className}Service {
     /**
     * 新增
     */
-    public Object insert(${classInfo.className} ${classInfo.className?uncap_first});
+    boolean insert(${classInfo.className}DTO ${classInfo.className?uncap_first}DTO);
 
     /**
     * 删除
     */
-    public Object delete(int id);
+    boolean delete(Long id);
 
     /**
     * 更新
     */
-    public Object update(${classInfo.className} ${classInfo.className?uncap_first});
-
-    /**
-    * 根据主键 id 查询
-    */
-    public ${classInfo.className} load(int id);
+    boolean update(${classInfo.className}DTO ${classInfo.className?uncap_first}DTO);
 
     /**
     * 分页查询
     */
-    public Map<String,Object> pageList(int offset, int pagesize);
+    JSONObject getList(int page, int limit, String keyword);
 
 }

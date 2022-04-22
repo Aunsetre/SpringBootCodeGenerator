@@ -63,6 +63,26 @@
         "id": "26",
         "name": "mapper2",
         "description": "mapper annotation"
+      },
+      {
+        "id": "27",
+        "name": "entity",
+        "description": "entity"
+      },
+      {
+        "id": "28",
+        "name": "dto",
+        "description": "dto"
+      },
+      {
+        "id": "29",
+        "name": "vo",
+        "description": "vo"
+      },
+      {
+        "id": "30",
+        "name": "mapstruct",
+        "description": "mapstruct"
       }
     ]
   },

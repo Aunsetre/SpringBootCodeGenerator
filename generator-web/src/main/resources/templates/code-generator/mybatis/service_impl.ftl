@@ -2,9 +2,9 @@
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import com.alibaba.fastjson.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 </#if>
 /**
  * @description ${classInfo.classComment}
@@ -14,55 +14,62 @@ import java.util.Map;
 @Service
 public class ${classInfo.className}ServiceImpl implements ${classInfo.className}Service {
 
-	@Resource
-	private ${classInfo.className}Mapper ${classInfo.className?uncap_first}Mapper;
+	@Autowired
+	private ${classInfo.className}Dao ${classInfo.className?uncap_first}Dao;
+
+	@Autowired
+    private ${classInfo.className}Mapper ${classInfo.className?uncap_first}Mapper;
 
 
 	@Override
-	public Object insert(${classInfo.className} ${classInfo.className?uncap_first}) {
+	public boolean insert(${classInfo.className}DTO ${classInfo.className?uncap_first}DTO) {
+        ${classInfo.className} ${classInfo.className?uncap_first} = ${classInfo.className?uncap_first}Mapper.to${classInfo.className}(${classInfo.className?uncap_first}DTO);
 
-		// valid
-		if (${classInfo.className?uncap_first} == null) {
-			return ${returnUtilFailure}("必要参数缺失");
-        }
-
-		${classInfo.className?uncap_first}Mapper.insert(${classInfo.className?uncap_first});
-        return ${returnUtilSuccess}();
+		return ${classInfo.className?uncap_first}Dao.insert(${classInfo.className?uncap_first}) != 0;
 	}
 
 
 	@Override
-	public Object delete(int id) {
-		int ret = ${classInfo.className?uncap_first}Mapper.delete(id);
-		return ret>0?${returnUtilSuccess}():${returnUtilFailure}();
+	public boolean delete(Long id) {
+		return ${classInfo.className?uncap_first}Dao.delete(id) != 0;
 	}
 
 
 	@Override
-	public Object update(${classInfo.className} ${classInfo.className?uncap_first}) {
-		int ret = ${classInfo.className?uncap_first}Mapper.update(${classInfo.className?uncap_first});
-		return ret>0?${returnUtilSuccess}():${returnUtilFailure}();
+	public boolean update(${classInfo.className}DTO ${classInfo.className?uncap_first}DTO) {
+	    ${classInfo.className} ${classInfo.className?uncap_first} = ${classInfo.className?uncap_first}Mapper.to${classInfo.className}(${classInfo.className?uncap_first}DTO);
+	    return ${classInfo.className?uncap_first}Dao.update(${classInfo.className?uncap_first}) != 0;
 	}
 
-
 	@Override
-	public ${classInfo.className} load(int id) {
-		return ${classInfo.className?uncap_first}Mapper.load(id);
-	}
-
-
-	@Override
-	public Map<String,Object> pageList(int offset, int pagesize) {
-
-		List<${classInfo.className}> pageList = ${classInfo.className?uncap_first}Mapper.pageList(offset, pagesize);
-		int totalCount = ${classInfo.className?uncap_first}Mapper.pageListCount(offset, pagesize);
-
-		// result
-		Map<String, Object> result = new HashMap<String, Object>();
-		result.put("pageList", pageList);
-		result.put("totalCount", totalCount);
+	public JSONObject getList(int page, int limit, String keyword) {
+	    JSONObject result = new JSONObject();
+        int offset = (page - 1) * limit;
+        List<${classInfo.className}VO> list = ${classInfo.className?uncap_first}Dao.getList(offset, limit, keyword);
+        Integer count = ${classInfo.className?uncap_first}Dao.getTotal(keyword);
+        result.put("list", list);
+        result.put("count", count);
 
 		return result;
 	}
+
+	private void columnIsExist(${classInfo.className}DTO ${classInfo.className?uncap_first}DTO) {
+            String key = ${classInfo.className?uncap_first}DTO.getEnvTypeKey();
+            String name = ${classInfo.className?uncap_first}DTO.getName();
+            boolean keyIsExist = ${classInfo.className?uncap_first}Dao.selectColumnIsExist(key, null) != 0;
+            boolean nameIsExist = ${classInfo.className?uncap_first}Dao.selectColumnIsExist(null, name) != 0;
+            if (keyIsExist) {
+                throw new BizException("已存在");
+            }
+            if (nameIsExist) {
+                throw new BizException("已存在");
+            }
+    }
+
+    private void idIsExist(Long id) {
+            if (${classInfo.className?uncap_first}Dao.load(id) == null) {
+                throw new BizException("数据不存在", false);
+            }
+    }
 
 }
