@@ -37,6 +37,10 @@ public class ${classInfo.className}ServiceImpl implements ${classInfo.className}
 
 	@Override
 	public boolean update(${classInfo.className}DTO ${classInfo.className?uncap_first}DTO) {
+	    Long id = Optional.ofNullable(${classInfo.className?uncap_first}DTO.getId()).orElseThrow(() -> new BadRequestException("id不能为空"));
+
+        idIsExist(id);
+
 	    ${classInfo.className} ${classInfo.className?uncap_first} = ${classInfo.className?uncap_first}Mapper.to${classInfo.className}(${classInfo.className?uncap_first}DTO);
 	    return ${classInfo.className?uncap_first}Dao.update(${classInfo.className?uncap_first}) != 0;
 	}
