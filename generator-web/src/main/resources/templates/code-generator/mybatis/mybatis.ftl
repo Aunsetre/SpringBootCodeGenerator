@@ -27,7 +27,7 @@
         </#if>
     </sql>
 
-    <insert id="insert" useGeneratedKeys="true" keyColumn="id" keyProperty="id" parameterType="${packageName}.model.${classInfo.className}">
+    <insert id="insert"  parameterType="${packageName}.model.${classInfo.className}">
         INSERT INTO ${classInfo.originTableName}
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <#if classInfo.fieldList?exists && classInfo.fieldList?size gt 0>
@@ -95,7 +95,7 @@
             </trim>
     </select>
 
-    <select id="getList" resultMap="BaseResultMap">
+    <select id="getList" resultMap="VOResultMap">
         SELECT <include refid="Base_Column_List" />
         FROM ${classInfo.originTableName}
         <include refid="whereCondition"/>

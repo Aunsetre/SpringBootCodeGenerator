@@ -15,6 +15,18 @@ public class ${classInfo.className}DTO {
     <#if isComment?exists && isComment==true>/**
     * ${fieldItem.fieldComment}
     */</#if>
+   <#if fieldItem.fieldClass=='Integer'>
+    @NotBlank(message= "${fieldItem.fieldComment}不能为空")
+   </#if>
+   <#if fieldItem.fieldClass=='String'>
+    @NotNull(message= "${fieldItem.fieldComment}不能为空")
+   </#if>
+   <#if fieldItem.fieldClass=='List'>
+    @NotEmpty(message= "${fieldItem.fieldComment}不能为空")
+   </#if>
+   <#if fieldItem.fieldLength?exists && fieldItem.fieldLength!=''>
+    @Length(max=${fieldItem.fieldLength}, message="${fieldItem.fieldComment}长度不能超过${fieldItem.fieldLength}位")
+   </#if>
     private ${fieldItem.fieldClass} ${fieldItem.fieldName};
 
 </#list>

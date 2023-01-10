@@ -35,8 +35,8 @@ public class TableParseUtil {
             throws IOException {
         //process the param
         String tableSql = paramInfo.getTableSql();
-        String nameCaseType = MapUtil.getString(paramInfo.getOptions(),"nameCaseType");
-        Boolean isPackageType = MapUtil.getBoolean(paramInfo.getOptions(),"isPackageType");
+        String nameCaseType = MapUtil.getString(paramInfo.getOptions(), "nameCaseType");
+        Boolean isPackageType = MapUtil.getBoolean(paramInfo.getOptions(), "isPackageType");
 
         if (tableSql == null || tableSql.trim().length() == 0) {
             throw new CodeGenerateException("Table structure can not be empty. 表结构不能为空。");
@@ -75,8 +75,8 @@ public class TableParseUtil {
         }
         String originTableName = tableName;
         //ignore prefix
-        if(tableName!=null && StringUtils.isNotNull(MapUtil.getString(paramInfo.getOptions(),"ignorePrefix"))){
-            tableName = tableName.replaceAll(MapUtil.getString(paramInfo.getOptions(),"ignorePrefix"),"");
+        if (tableName != null && StringUtils.isNotNull(MapUtil.getString(paramInfo.getOptions(), "ignorePrefix"))) {
+            tableName = tableName.replaceAll(MapUtil.getString(paramInfo.getOptions(), "ignorePrefix"), "");
         }
         // class Name
         String className = StringUtils.upperCaseFirst(StringUtils.underlineToCamelCase(tableName));
@@ -198,7 +198,7 @@ public class TableParseUtil {
                     columnLine = columnLine.substring(columnLine.indexOf("`") + 1).trim();
 
                     //swagger class
-                    String swaggerClass = "string" ;
+                    String swaggerClass = "string";
                     if (columnLine.contains(" tinyint")) {
                         swaggerClass = "integer";
                     } else if (columnLine.contains(" int") || columnLine.contains(" smallint")) {
@@ -209,7 +209,7 @@ public class TableParseUtil {
                         swaggerClass = "number";
                     } else if (columnLine.contains(" double")) {
                         swaggerClass = "number";
-                    }  else if (columnLine.contains(" boolean")) {
+                    } else if (columnLine.contains(" boolean")) {
                         swaggerClass = "boolean";
                     }
                     // field class
@@ -221,17 +221,18 @@ public class TableParseUtil {
                     //2020-10-20 zhengkai 新增包装类型的转换选择
                     if (columnLine.contains(" tinyint")) {
                         //20191115 MOSHOW.K.ZHENG 支持对tinyint的特殊处理
-                        fieldClass = MapUtil.getString(paramInfo.getOptions(),"tinyintTransType");;
+                        fieldClass = MapUtil.getString(paramInfo.getOptions(), "tinyintTransType");
+                        ;
                     } else if (columnLine.contains(" int") || columnLine.contains(" smallint")) {
-                        fieldClass = (isPackageType)?Integer.class.getSimpleName():"int";
+                        fieldClass = (isPackageType) ? Integer.class.getSimpleName() : "int";
                     } else if (columnLine.contains(" bigint")) {
-                        fieldClass = (isPackageType)?Long.class.getSimpleName():"long";
+                        fieldClass = (isPackageType) ? Long.class.getSimpleName() : "long";
                     } else if (columnLine.contains(" float")) {
-                        fieldClass = (isPackageType)?Float.class.getSimpleName():"float";
+                        fieldClass = (isPackageType) ? Float.class.getSimpleName() : "float";
                     } else if (columnLine.contains(" double")) {
-                        fieldClass = (isPackageType)?Double.class.getSimpleName():"double";
+                        fieldClass = (isPackageType) ? Double.class.getSimpleName() : "double";
                     } else if (columnLine.contains(" time") || columnLine.contains(" date") || columnLine.contains(" datetime") || columnLine.contains(" timestamp")) {
-                        fieldClass =  MapUtil.getString(paramInfo.getOptions(),"timeTransType");
+                        fieldClass = MapUtil.getString(paramInfo.getOptions(), "timeTransType");
                     } else if (columnLine.contains(" varchar") || columnLine.contains(" text") || columnLine.contains(" char")
                             || columnLine.contains(" clob") || columnLine.contains(" blob") || columnLine.contains(" json")) {
                         fieldClass = String.class.getSimpleName();
@@ -256,9 +257,9 @@ public class TableParseUtil {
                                 }
                                 //数字范围9位及一下用Integer，大的用Long
                                 if (length <= 9) {
-                                    fieldClass = (isPackageType)?Integer.class.getSimpleName():"int";
+                                    fieldClass = (isPackageType) ? Integer.class.getSimpleName() : "int";
                                 } else {
-                                    fieldClass = (isPackageType)?Long.class.getSimpleName():"long";
+                                    fieldClass = (isPackageType) ? Long.class.getSimpleName() : "long";
                                 }
                             } else {
                                 //有小数位数一律使用BigDecimal
@@ -269,10 +270,15 @@ public class TableParseUtil {
                         }
                     } else if (columnLine.contains(" boolean")) {
                         //20190910 MOSHOW.K.ZHENG 新增对boolean的处理（感谢@violinxsc的反馈）以及修复tinyint类型字段无法生成boolean类型问题（感谢@hahaYhui的反馈）
-                        fieldClass = (isPackageType)?Boolean.class.getSimpleName():"boolean";
+                        fieldClass = (isPackageType) ? Boolean.class.getSimpleName() : "boolean";
                     } else {
                         fieldClass = String.class.getSimpleName();
                     }
+
+                    Pattern pattern = Pattern.compile("[^0-9]");
+                    Matcher matcher = pattern.matcher(columnLine);
+                    String fieldLength = matcher.replaceAll("");
+
 
                     // field comment，MySQL的一般位于field行，而pgsql和oralce多位于后面。
                     String fieldComment = null;
@@ -314,6 +320,7 @@ public class TableParseUtil {
                     fieldInfo.setFieldClass(fieldClass);
                     fieldInfo.setSwaggerClass(swaggerClass);
                     fieldInfo.setFieldComment(fieldComment);
+                    fieldInfo.setFieldLength(fieldLength);
 
                     fieldList.add(fieldInfo);
                 }
@@ -384,7 +391,7 @@ public class TableParseUtil {
         Pattern DDL_PATTERN = Pattern.compile(DDL_PATTEN_STR, Pattern.CASE_INSENSITIVE);
 
         //匹配列sql部分，分别解析每一列的列名 类型 和列注释
-        String COL_PATTERN_STR = "\\s*(?<fieldName>\\S+)\\s+(?<fieldType>\\w+)\\s*(?:\\([\\s\\d,]+\\))?((?!comment).)*(comment\\s*'(?<fieldComment>.*?)')?\\s*(,|$)";
+        String COL_PATTERN_STR = "\\s*(?<fieldName>\\S+)\\s+(?<fieldType>\\w+)\\s+(?<fieldLength>\\D+)\\s*(?:\\([\\s\\d,]+\\))?((?!comment).)*(comment\\s*'(?<fieldComment>.*?)')?\\s*(,|$)";
 
         Pattern COL_PATTERN = Pattern.compile(COL_PATTERN_STR, Pattern.CASE_INSENSITIVE);
 
@@ -402,6 +409,7 @@ public class TableParseUtil {
                     String fieldName = colMatcher.group("fieldName");
                     String fieldType = colMatcher.group("fieldType");
                     String fieldComment = colMatcher.group("fieldComment");
+                    String fieldLength = colMatcher.group("fieldLength");
                     if (!"key".equalsIgnoreCase(fieldType)) {
                         FieldInfo fieldInfo = new FieldInfo();
                         fieldInfo.setFieldName(fieldName.replaceAll("'", ""));
