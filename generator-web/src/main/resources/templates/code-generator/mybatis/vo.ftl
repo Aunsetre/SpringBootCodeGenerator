@@ -18,6 +18,17 @@ public class ${classInfo.className}VO {
     private ${fieldItem.fieldClass} ${fieldItem.fieldName};
 
 </#list>
+    /**
+     * 创建时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date createTime;
+
+    /**
+     * 更新时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date updateTime;
 </#if>
 
 <#if classInfo.fieldList?exists && classInfo.fieldList?size gt 0>
@@ -34,16 +45,5 @@ public class ${classInfo.className}VO {
     }
 
 </#list>
-    /**
-     * 创建时间
-     */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date createTime;
-
-    /**
-     * 更新时间
-     */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date updateTime;
 </#if>
 }

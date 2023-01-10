@@ -3,7 +3,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="${packageName}.dao.${classInfo.className}Dao">
 
-    <resultMap id="VOResultMap" type="${packageName}.vo.${classInfo.className}VO" >
+    <resultMap id="BaseResultMap" type="${packageName}.vo.${classInfo.className}VO" >
         <#if classInfo.fieldList?exists && classInfo.fieldList?size gt 0>
             <#list classInfo.fieldList as fieldItem >
                 <result column="${fieldItem.columnName}" property="${fieldItem.fieldName}" />
@@ -49,7 +49,7 @@
                         NOW()<#if fieldItem_has_next>,</#if>
                     ${r"</if>"}
                     <#else>-->
-                        <if test="null != ${fieldItem.fieldName} <#if fieldItem.fieldClass ="String">and '' != ${fieldItem.fieldName}</#if>">
+                        <if test="null != ${fieldItem.fieldName} <#if fieldItem.fieldClass ="String"> and '' != ${fieldItem.fieldName}</#if>">
                         ${r"#{"}${fieldItem.fieldName}${r"}"}<#if fieldItem_has_next>,</#if>
                         ${r"</if>"}
                     <#--</#if>-->
@@ -67,19 +67,25 @@
     <update id="update" parameterType="${packageName}.model.${classInfo.className}">
         UPDATE ${classInfo.originTableName}
         <set>
-            <#list classInfo.fieldList as fieldItem >
-                <#if fieldItem.columnName != "id" && fieldItem.columnName != "AddTime" && fieldItem.columnName != "UpdateTime" >
-                    <if test="null != ${fieldItem.fieldName} <#if fieldItem.fieldClass ="String">and '' != ${fieldItem.fieldName}</#if>">${fieldItem.columnName} = ${r"#{"}${fieldItem.fieldName}${r"}"}<#if fieldItem_has_next>,</#if>${r"</if>"}
-                </#if>
-            </#list>
-            update_time = GETDATE()
+        <#list classInfo.fieldList as fieldItem >
+             <#if fieldItem.columnName != "id" && fieldItem.columnName != "create_time" && fieldItem.columnName != "update_time">
+                <if test="null != ${fieldItem.fieldName}<#if fieldItem.fieldClass ="String"> and '' != ${fieldItem.fieldName}</#if>">
+                    ${fieldItem.columnName} = ${r"#{"}${fieldItem.fieldName}${r"}"}<#if fieldItem_has_next>,</#if>
+                </if>
+             </#if>
+             <#t>
+             <#if fieldItem.columnName == "update_time">
+                ${fieldItem.columnName}=GETDATE()
+             </#if>
+        </#list>
         </set>
-        WHERE
+        <where>
             id = ${r"#{"}id${r"}"}
+        <where>
     </update>
 
 
-    <select id="load" resultMap="EntityResultMap">
+    <select id="selectOne" resultMap="EntityResultMap">
         SELECT <include refid="Base_Column_List" />
         FROM ${classInfo.originTableName}
         WHERE id = ${r"#{id}"}
@@ -98,11 +104,11 @@
     <select id="getList" resultMap="VOResultMap">
         SELECT <include refid="Base_Column_List" />
         FROM ${classInfo.originTableName}
-        <include refid="whereCondition"/>
+        <include refid="getList_where_Clause"/>
         ORDER BY id desc OFFSET ${r"#{offset}"} ROWS FETCH NEXT ${r"#{limit}"} ROWS ONLY
     </select>
 
-    <sql id="whereCondition">
+    <sql id="getList_where_Clause">
         <where>
            <if test="keyword != null and keyword != ''">
              name like '%'+ ${r"#{keyword}"} +'%'
@@ -113,7 +119,7 @@
     <select id="getTotal" resultType="java.lang.Integer">
         SELECT count(1)
         FROM ${classInfo.originTableName}
-        <include refid="whereCondition"/>
+        <include refid="pageList_where_Clause"/>
     </select>
 
 </mapper>

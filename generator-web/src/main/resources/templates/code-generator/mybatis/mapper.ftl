@@ -30,7 +30,7 @@ public interface ${classInfo.className}Dao {
     /**
     * 查询 根据主键 id 查询
     */
-    ${classInfo.className} load(Long id);
+    ${classInfo.className} selectOne(Long id);
 
     /**
     * 查询内容是否存在
